@@ -166,4 +166,4 @@ CREATE TABLE IF NOT EXISTS pago (
     CONSTRAINT alquiler_pago_id_FK FOREIGN KEY (id_alquiler) REFERENCES alquiler(id_alquiler) ON DELETE CASCADE
 );
 
-ALTER TABLE empleado ADD CONSTRAINT almacen_empleados_id_FK FOREIGN KEY (id_almacen) REFERENCES almacen(id_almacen);
+ALTER TABLE empleado ADD CONSTRAINT almacen_empleador_id_FK FOREIGN KEY (id_almacen) REFERENCES almacen(id_almacen);

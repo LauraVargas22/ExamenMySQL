@@ -8,7 +8,14 @@ GROUP BY c.nombre, c.apellidos
 ORDER BY Alquiler_Clientes DESC
 LIMIT 1;
 -- 2. Lista las cinco películas más alquiladas durante el último año.
-SELECT 
+SELECT p.id_pelicula, p.titulo, COUNT(a.id_alquiler) AS total_alquileres
+FROM pelicula p
+JOIN inventario i ON p.id_pelicula = i.id_pelicula
+JOIN alquiler a ON i.id_inventario = a.id_inventario
+WHERE a.fecha_alquiler >= CURRENT_DATE - INTERVAL '1 year'
+GROUP BY p.id_pelicula, p.titulo
+ORDER BY total_alquileres DESC
+LIMIT 5;
 -- 3. Obtén el total de ingresos y la cantidad de alquileres realizados por cada categoría de película.
 SELECT c.nombre AS Categoria, COUNT(a.id_alquiler) AS Alquileres, SUM(pa.total) AS Ingresos
 FROM categoria c
@@ -27,3 +34,19 @@ JOIN alquiler a ON i.id_inventario = a.id_inventario
 JOIN cliente c ON a.id_cliente = c.id_cliente
 GROUP BY id.nombre;
 -- 5. Encuentra a los clientes que han alquilado todas las películas de una misma categoría.
+SELECT c.id_cliente, c.nombre, c.apellidos, cat.id_categoria, cat.nombre AS categoria
+FROM cliente c
+JOIN alquiler a ON c.id_cliente = a.id_cliente
+JOIN inventario i ON a.id_inventario = i.id_inventario
+JOIN pelicula p ON i.id_pelicula = p.id_pelicula
+JOIN pelicula_actor pa ON p.id_pelicula = pa.id_pelicula
+JOIN categoria cat ON pa.id_categoria = cat.id_categoria
+GROUP BY c.id_cliente, c.nombre, c.apellidos, cat.id_categoria, cat.nombre
+HAVING 
+    COUNT(DISTINCT p.id_pelicula) = (
+        SELECT COUNT(DISTINCT p2.id_pelicula)
+        FROM pelicula p2
+        JOIN pelicula_actor pa2 ON p2.id_pelicula = pa2.id_pelicula
+        WHERE pa2.id_categoria = cat.id_categoria
+    )
+ORDER BY cat.nombre, c.apellidos, c.nombre;
